@@ -6,7 +6,6 @@ import com.raf.edcsimulation.auth.data.local.AuthDataStore
 import com.raf.edcsimulation.auth.data.remote.AuthApiService
 import com.raf.edcsimulation.auth.data.repository.AuthRepositoryImpl
 import com.raf.edcsimulation.auth.domain.usecase.LoginUseCase
-import com.raf.edcsimulation.auth.domain.usecase.LogoutUseCase
 import com.raf.edcsimulation.auth.domain.usecase.RegisterUseCase
 import com.raf.edcsimulation.core.domain.repository.AuthRepository
 import dagger.Module
@@ -81,12 +80,6 @@ object AppModule {
     @Singleton
     fun provideRegisterUseCase(authRepository: AuthRepository): RegisterUseCase {
         return RegisterUseCase(authRepository)
-    }
-
-    @Provides
-    @Singleton
-    fun provideLogoutUseCase(authRepository: AuthRepository): LogoutUseCase {
-        return LogoutUseCase(authRepository)
     }
 
 }

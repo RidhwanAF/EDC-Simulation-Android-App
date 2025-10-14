@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.raf.edcsimulation.auth.domain.usecase.LoginUseCase
-import com.raf.edcsimulation.auth.domain.usecase.LogoutUseCase
 import com.raf.edcsimulation.auth.domain.usecase.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,7 +15,6 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val loginUseCase: LoginUseCase,
-    private val logoutUseCase: LogoutUseCase,
 ) : ViewModel() {
 
     var email by mutableStateOf("")
@@ -77,15 +75,6 @@ class AuthViewModel @Inject constructor(
     fun login() {
         viewModelScope.launch {
             loginUseCase(email, password)
-        }
-    }
-
-    /**
-     * Logout user
-     */
-    fun logout() {
-        viewModelScope.launch {
-            logoutUseCase()
         }
     }
 }
