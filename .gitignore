@@ -1,8 +1,4 @@
-# Gradle files
-.gradle/
-build/
-
-# Local configuration file (sdk path, etc)
+*.iml
 .gradle
 /local.properties
 /.idea/caches
@@ -17,6 +13,9 @@ build/
 .externalNativeBuild
 .cxx
 local.properties
+# Gradle files
+.gradle/
+build/
 
 # Log/OS Files
 *.log
@@ -30,7 +29,6 @@ captures/
 output-metadata.json
 
 # IntelliJ
-*.iml
 .idea/
 misc.xml
 deploymentTargetDropDown.xml
