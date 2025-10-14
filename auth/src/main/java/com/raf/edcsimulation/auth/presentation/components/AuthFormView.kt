@@ -1,5 +1,7 @@
 package com.raf.edcsimulation.auth.presentation.components
 
+import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -11,8 +13,10 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -21,12 +25,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,9 +43,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -50,13 +57,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.raf.edcsimulation.auth.presentation.viewmodel.AuthState
+import com.raf.edcsimulation.auth.presentation.viewmodel.AuthUiState
 import com.raf.edcsimulation.auth.presentation.viewmodel.AuthViewModel
+import com.raf.edcsimulation.core.R
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.AuthFormView(
     modifier: Modifier = Modifier,
     animatedContentScope: AnimatedContentScope,
+    uiState: AuthUiState = AuthUiState(),
     title: String = "Login",
     isRegisterForm: Boolean = false,
     viewModel: AuthViewModel = hiltViewModel<AuthViewModel>(),
@@ -64,16 +75,77 @@ fun SharedTransitionScope.AuthFormView(
     onCTA: () -> Unit = {},
     navigationLabel: String = "Register",
     onNavigation: () -> Unit = {},
+    onLoginSuccess: () -> Unit = {},
 ) {
+    val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val scrollState = rememberScrollState()
+
+    // Button Validation & Response State
+    LaunchedEffect(
+        uiState.username,
+        uiState.password,
+        uiState.confirmPassword
+    ) {
+        viewModel.validateButton(isRegisterForm)
+        viewModel.resetAuthState()
+    }
+
+    // Login Change Clear Validation
+    LaunchedEffect(isRegisterForm) {
+        if (!isRegisterForm) {
+            viewModel.resetError()
+        }
+    }
+
+    // Register Change Validation
+    LaunchedEffect(isRegisterForm) {
+        if (isRegisterForm) {
+            if (uiState.username.isNotBlank()) {
+                viewModel.validateUsername(true)
+            }
+            if (uiState.password.isNotBlank()) {
+                viewModel.validatePassword(true)
+            }
+            if (uiState.confirmPassword.isNotBlank()) {
+                viewModel.validateConfirmPassword()
+            }
+        }
+        viewModel.validateButton(isRegisterForm)
+    }
+
+    // Register Success
+    LaunchedEffect(uiState.registerState) {
+        if (uiState.registerState is AuthState.Success && isRegisterForm) {
+            Toast.makeText(
+                context,
+                uiState.registerState.message,
+                Toast.LENGTH_SHORT
+            ).show()
+            onNavigation.invoke()
+            viewModel.resetUiState()
+        }
+    }
+
+    // Login Success
+    LaunchedEffect(uiState.loginState) {
+        if (uiState.loginState is AuthState.Success && !isRegisterForm) {
+            Toast.makeText(
+                context,
+                uiState.loginState.message,
+                Toast.LENGTH_SHORT
+            ).show()
+            onLoginSuccess.invoke()
+            viewModel.resetUiState()
+        }
+    }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = stringResource(com.raf.edcsimulation.core.R.string.app_name).uppercase(),
+                        text = stringResource(R.string.title).uppercase(),
                         style = MaterialTheme.typography.titleLarge,
                     )
                 },
@@ -85,7 +157,7 @@ fun SharedTransitionScope.AuthFormView(
             .fillMaxSize()
     ) { innerPadding ->
         Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
@@ -106,16 +178,17 @@ fun SharedTransitionScope.AuthFormView(
                     )
             )
             OutlinedTextField(
-                value = viewModel.email,
+                value = uiState.username,
                 onValueChange = {
-                    viewModel.onEmailChange(it)
+                    viewModel.onInputChange(username = it)
+                    viewModel.validateUsername(isRegisterForm)
                 },
                 label = {
-                    Text(text = "Email")
+                    Text(text = "Username")
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
-                    keyboardType = KeyboardType.Email
+                    keyboardType = KeyboardType.Text
                 ),
                 keyboardActions = KeyboardActions {
                     this.defaultKeyboardAction(
@@ -123,21 +196,34 @@ fun SharedTransitionScope.AuthFormView(
                     )
                 },
                 singleLine = true,
+                isError = uiState.usernameError,
+                supportingText = {
+                    AnimatedVisibility(
+                        visible = !uiState.usernameErrorMessage.isBlank(),
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Text(
+                            text = uiState.usernameErrorMessage,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = "Email"
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Username"
                     )
                 },
                 trailingIcon = {
                     AnimatedVisibility(
-                        visible = !viewModel.email.isBlank(),
+                        visible = !uiState.username.isBlank(),
                         enter = scaleIn(),
                         exit = scaleOut()
                     ) {
                         IconButton(
                             onClick = {
-                                viewModel.onEmailChange("")
+                                viewModel.onInputChange(username = "")
                             }
                         ) {
                             Icon(
@@ -151,14 +237,16 @@ fun SharedTransitionScope.AuthFormView(
                     .fillMaxWidth()
                     .widthIn(max = 220.dp)
                     .sharedElement(
-                        sharedContentState = rememberSharedContentState("auth-email-text-field-key"),
+                        sharedContentState = rememberSharedContentState("auth-username-text-field-key"),
                         animatedVisibilityScope = animatedContentScope
                     )
             )
             OutlinedTextField(
-                value = viewModel.password,
+                value = uiState.password,
                 onValueChange = {
-                    viewModel.onPasswordChange(it)
+                    viewModel.onInputChange(password = it)
+                    viewModel.validatePassword(isRegisterForm)
+                    viewModel.validateConfirmPassword()
                 },
                 label = {
                     Text(text = "Password")
@@ -172,8 +260,21 @@ fun SharedTransitionScope.AuthFormView(
                         imeAction = if (isRegisterForm) ImeAction.Next else ImeAction.Done
                     )
                 },
-                visualTransformation = if (viewModel.showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (uiState.showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 singleLine = true,
+                isError = uiState.passwordError,
+                supportingText = {
+                    AnimatedVisibility(
+                        visible = !uiState.passwordErrorMessage.isBlank(),
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Text(
+                            text = uiState.passwordErrorMessage,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Password,
@@ -183,11 +284,11 @@ fun SharedTransitionScope.AuthFormView(
                 trailingIcon = {
                     IconButton(
                         onClick = {
-                            viewModel.onShowPasswordChange(!viewModel.showPassword)
+                            viewModel.onInputChange(showPassword = !uiState.showPassword)
                         }
                     ) {
                         Icon(
-                            imageVector = if (viewModel.showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (uiState.showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = "Show/Hide Password"
                         )
                     }
@@ -206,14 +307,15 @@ fun SharedTransitionScope.AuthFormView(
                 exit = fadeOut()
             ) {
                 OutlinedTextField(
-                    value = viewModel.confirmPassword,
+                    value = uiState.confirmPassword,
                     onValueChange = {
-                        viewModel.onConfirmPasswordChange(it)
+                        viewModel.onInputChange(confirmPassword = it)
+                        viewModel.validateConfirmPassword()
                     },
                     label = {
                         Text(text = "Confirm Password")
                     },
-                    visualTransformation = if (viewModel.showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (uiState.showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done,
                         keyboardType = KeyboardType.Password
@@ -223,7 +325,20 @@ fun SharedTransitionScope.AuthFormView(
                             imeAction = ImeAction.Done
                         )
                     },
+                    isError = uiState.confirmPasswordError,
                     singleLine = true,
+                    supportingText = {
+                        AnimatedVisibility(
+                            visible = !uiState.confirmPasswordErrorMessage.isBlank(),
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            Text(
+                                text = uiState.confirmPasswordErrorMessage,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Password,
@@ -233,11 +348,11 @@ fun SharedTransitionScope.AuthFormView(
                     trailingIcon = {
                         IconButton(
                             onClick = {
-                                viewModel.onShowConfirmPasswordChange(!viewModel.showConfirmPassword)
+                                viewModel.onInputChange(showConfirmPassword = !uiState.showConfirmPassword)
                             }
                         ) {
                             Icon(
-                                imageVector = if (viewModel.showConfirmPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                imageVector = if (uiState.showConfirmPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                 contentDescription = "Show/Hide Confirm Password"
                             )
                         }
@@ -247,8 +362,27 @@ fun SharedTransitionScope.AuthFormView(
                         .widthIn(max = 220.dp)
                 )
             }
+            AnimatedVisibility(
+                visible = uiState.loginState is AuthState.Error || uiState.registerState is AuthState.Error,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Text(
+                    text = (uiState.loginState as? AuthState.Error)?.message
+                        ?: (uiState.registerState as? AuthState.Error)?.message
+                        ?: "",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = onCTA,
+                enabled = uiState.isButtonEnabled && uiState.loginState !is AuthState.Loading &&
+                        uiState.registerState !is AuthState.Loading &&
+                        uiState.loginState !is AuthState.Error && uiState.registerState !is AuthState.Error,
                 modifier = Modifier
                     .fillMaxWidth()
                     .widthIn(max = 220.dp)
@@ -257,10 +391,19 @@ fun SharedTransitionScope.AuthFormView(
                         animatedVisibilityScope = animatedContentScope
                     )
             ) {
-                Text(
-                    text = ctaLabel,
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                AnimatedContent(
+                    targetState = uiState.loginState is AuthState.Loading || uiState.registerState is AuthState.Loading,
+                    modifier = Modifier
+                ) { targetState ->
+                    if (targetState) {
+                        CircularProgressIndicator()
+                    } else {
+                        Text(
+                            text = ctaLabel,
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    }
+                }
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -282,7 +425,6 @@ fun SharedTransitionScope.AuthFormView(
             TextButton(
                 onClick = {
                     onNavigation.invoke()
-                    viewModel.resetUserInputData()
                 },
                 modifier = Modifier
                     .sharedElement(

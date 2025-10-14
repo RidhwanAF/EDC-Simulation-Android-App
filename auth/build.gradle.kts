@@ -30,12 +30,10 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"${getPropertyOrEmpty("BASE_URL")}\"")
             buildConfigField("String", "SECRET_KEY_STRING", "\"${getPropertyOrEmpty("BASE_URL")}\"")
         }
 
         release {
-            buildConfigField("String", "BASE_URL", "\"${getPropertyOrEmpty("BASE_URL")}\"")
             buildConfigField("String", "SECRET_KEY_STRING", "\"${getPropertyOrEmpty("BASE_URL")}\"")
 
             isMinifyEnabled = true

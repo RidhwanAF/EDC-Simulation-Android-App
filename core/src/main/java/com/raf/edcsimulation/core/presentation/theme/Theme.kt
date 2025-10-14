@@ -1,4 +1,4 @@
-package com.raf.edcsimulation.core.ui.theme
+package com.raf.edcsimulation.core.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

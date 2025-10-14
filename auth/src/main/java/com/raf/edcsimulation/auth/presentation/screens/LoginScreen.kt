@@ -5,7 +5,9 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.raf.edcsimulation.auth.presentation.components.AuthFormView
 import com.raf.edcsimulation.auth.presentation.viewmodel.AuthViewModel
 
@@ -14,10 +16,14 @@ import com.raf.edcsimulation.auth.presentation.viewmodel.AuthViewModel
 fun SharedTransitionScope.LoginScreen(
     animatedContentScope: AnimatedContentScope,
     viewModel: AuthViewModel = hiltViewModel<AuthViewModel>(),
-    onNavigateToRegister: () -> Unit = {}
+    onNavigateToRegister: () -> Unit = {},
+    onLoginSuccess: () -> Unit = {},
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     AuthFormView(
         animatedContentScope = animatedContentScope,
+        uiState = uiState,
         title = "Login",
         isRegisterForm = false,
         viewModel = viewModel,
@@ -28,7 +34,9 @@ fun SharedTransitionScope.LoginScreen(
         navigationLabel = "Register",
         onNavigation = {
             onNavigateToRegister.invoke()
-            viewModel.resetUserInputData()
+        },
+        onLoginSuccess = {
+            onLoginSuccess.invoke()
         }
     )
 }

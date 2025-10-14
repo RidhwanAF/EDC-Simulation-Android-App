@@ -5,9 +5,13 @@ import com.raf.edcsimulation.BuildConfig
 import com.raf.edcsimulation.auth.data.local.AuthDataStore
 import com.raf.edcsimulation.auth.data.remote.AuthApiService
 import com.raf.edcsimulation.auth.data.repository.AuthRepositoryImpl
+import com.raf.edcsimulation.auth.domain.repository.AuthRepository
 import com.raf.edcsimulation.auth.domain.usecase.LoginUseCase
 import com.raf.edcsimulation.auth.domain.usecase.RegisterUseCase
-import com.raf.edcsimulation.core.domain.repository.AuthRepository
+import com.raf.edcsimulation.auth.domain.usecase.SaveTokenSessionUseCase
+import com.raf.edcsimulation.core.domain.repository.AuthTokenProvider
+import com.raf.edcsimulation.core.domain.usecase.GetTokenSessionUseCase
+import com.raf.edcsimulation.core.domain.usecase.LogoutUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -67,6 +71,12 @@ object AppModule {
         authApiService = authApiService,
     )
 
+    @Provides
+    @Singleton
+    fun provideAuthTokenProvider(repository: AuthRepository): AuthTokenProvider {
+        return repository as AuthTokenProvider
+    }
+
     /**
      * Auth Use Cases
      */
@@ -82,4 +92,24 @@ object AppModule {
         return RegisterUseCase(authRepository)
     }
 
+    @Provides
+    @Singleton
+    fun provideSaveTokenSessionUseCase(authRepository: AuthRepository): SaveTokenSessionUseCase {
+        return SaveTokenSessionUseCase(authRepository)
+    }
+
+    /**
+     * Core Use Cases
+     */
+    @Provides
+    @Singleton
+    fun provideGetTokenSessionUseCase(authTokenProvider: AuthTokenProvider): GetTokenSessionUseCase {
+        return GetTokenSessionUseCase(authTokenProvider)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLogoutUseCase(authTokenProvider: AuthTokenProvider): LogoutUseCase {
+        return LogoutUseCase(authTokenProvider)
+    }
 }
