@@ -8,13 +8,13 @@ sealed class Routes {
     object Auth : Routes() // Auth Parent
 
     @Serializable
-    object Login: Routes()
+    object Login : Routes()
 
     @Serializable
-    object Register: Routes()
+    object Register : Routes()
 
     @Serializable
-    object MainMenu : Routes() // Home Parent
+    object MainMenu : Routes() // Main Menu Parent
 
     @Serializable
     object Sale : Routes()

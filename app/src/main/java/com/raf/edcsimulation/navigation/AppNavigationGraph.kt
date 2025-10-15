@@ -2,22 +2,17 @@ package com.raf.edcsimulation.navigation
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.raf.edcsimulation.AppViewModel
 import com.raf.edcsimulation.auth.presentation.screens.LoginScreen
 import com.raf.edcsimulation.auth.presentation.screens.RegisterScreen
 import com.raf.edcsimulation.auth.presentation.viewmodel.AuthViewModel
+import com.raf.edcsimulation.card.presentation.CardMenuView
 import com.raf.edcsimulation.utils.sharedViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -25,7 +20,6 @@ import com.raf.edcsimulation.utils.sharedViewModel
 fun AppNavigationGraph(
     navController: NavHostController,
     startDestination: Routes,
-    appViewModel: AppViewModel,
 ) {
     SharedTransitionLayout(
         modifier = Modifier.fillMaxSize()
@@ -80,19 +74,11 @@ fun AppNavigationGraph(
                 startDestination = Routes.Sale,
             ) {
                 composable<Routes.Sale> {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = "Sale"
-                        )
-                        Button(
-                            onClick = appViewModel::logout
-                        ) {
-                            Text(text = "Logout")
+                    CardMenuView(
+                        onCardProcessed = {
+                            // TODO
                         }
-                    }
+                    )
 //                    SaleScreen()
                 }
                 composable<Routes.History> {

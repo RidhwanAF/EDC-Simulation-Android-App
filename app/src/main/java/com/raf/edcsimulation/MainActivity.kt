@@ -68,8 +68,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     AppNavigationGraph(
                         navController = navController,
-                        startDestination = startDestination,
-                        appViewModel = appViewModel
+                        startDestination = startDestination
                     )
                 }
             }
