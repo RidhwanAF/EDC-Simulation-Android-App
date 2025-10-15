@@ -46,6 +46,9 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
+    implementation(libs.androidx.compose.material.icons.extended)
+    // Fonts
     implementation(libs.androidx.compose.ui.text.google.fonts)
+    // Animation
+    implementation(libs.androidx.animation)
 }

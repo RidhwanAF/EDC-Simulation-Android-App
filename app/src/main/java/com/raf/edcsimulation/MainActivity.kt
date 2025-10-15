@@ -6,11 +6,13 @@ import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.raf.edcsimulation.core.domain.model.DarkTheme
 import com.raf.edcsimulation.core.presentation.theme.EDCSimulationTheme
 import com.raf.edcsimulation.navigation.AppNavigationGraph
 import com.raf.edcsimulation.navigation.Routes
@@ -25,7 +27,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Splash Screen
+        // Hold Splash Screen on Init Data Load
         val content: View = findViewById(android.R.id.content)
         content.viewTreeObserver.addOnPreDrawListener(
             object : ViewTreeObserver.OnPreDrawListener {
@@ -41,7 +43,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             appViewModel = hiltViewModel()
             val appState by appViewModel.appState.collectAsStateWithLifecycle()
-            val uiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
             val navController = rememberNavController()
             val startDestination = remember(appState) {
@@ -54,15 +55,23 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            EDCSimulationTheme(
-                darkTheme = uiState.isDarkTheme,
-                dynamicColor = uiState.isDynamicColor,
-            ) {
-                AppNavigationGraph(
-                    navController = navController,
-                    startDestination = startDestination,
-                    appViewModel = appViewModel
-                )
+            (appState as? AppState.Loaded)?.let { appData ->
+                val darkTheme = when (appData.appSettings.darkTheme) {
+                    DarkTheme.FOLLOW_SYSTEM -> isSystemInDarkTheme()
+                    DarkTheme.LIGHT -> false
+                    DarkTheme.DARK -> true
+                }
+
+                EDCSimulationTheme(
+                    darkTheme = darkTheme,
+                    dynamicColor = appData.appSettings.dynamicColor,
+                ) {
+                    AppNavigationGraph(
+                        navController = navController,
+                        startDestination = startDestination,
+                        appViewModel = appViewModel
+                    )
+                }
             }
         }
     }

@@ -8,10 +8,14 @@ import com.raf.edcsimulation.auth.data.repository.AuthRepositoryImpl
 import com.raf.edcsimulation.auth.domain.repository.AuthRepository
 import com.raf.edcsimulation.auth.domain.usecase.LoginUseCase
 import com.raf.edcsimulation.auth.domain.usecase.RegisterUseCase
-import com.raf.edcsimulation.auth.domain.usecase.SaveTokenSessionUseCase
-import com.raf.edcsimulation.core.domain.repository.AuthTokenProvider
+import com.raf.edcsimulation.core.domain.contracts.AppSettingsProvider
+import com.raf.edcsimulation.core.domain.contracts.AuthTokenProvider
+import com.raf.edcsimulation.core.domain.usecase.GetAppSettingsUseCase
 import com.raf.edcsimulation.core.domain.usecase.GetTokenSessionUseCase
 import com.raf.edcsimulation.core.domain.usecase.LogoutUseCase
+import com.raf.edcsimulation.core.domain.usecase.SetAppSettingsUseCase
+import com.raf.settings.data.local.SettingsDataStore
+import com.raf.settings.data.repository.SettingsRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,6 +31,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    /**
+     * Retrofit Configuration
+     * NOTE: Add BASE_URL in locale.properties
+     */
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
@@ -41,25 +49,24 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
-        return Retrofit.Builder()
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
+        Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL) // Add BASE_URL in locale.properties
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
+
+    /**
+     * Auth
+     */
+    @Provides
+    @Singleton
+    fun provideAuthService(retrofit: Retrofit): AuthApiService =
+        retrofit.create(AuthApiService::class.java)
 
     @Provides
     @Singleton
-    fun provideAuthService(retrofit: Retrofit): AuthApiService {
-        return retrofit.create(AuthApiService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAuthDataStore(@ApplicationContext context: Context): AuthDataStore {
-        return AuthDataStore(context)
-    }
+    fun provideAuthDataStore(@ApplicationContext context: Context) = AuthDataStore(context)
 
     @Provides
     @Singleton
@@ -73,43 +80,59 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthTokenProvider(repository: AuthRepository): AuthTokenProvider {
-        return repository as AuthTokenProvider
-    }
+    fun provideAuthTokenProvider(repository: AuthRepositoryImpl): AuthTokenProvider = repository
+
+    /**
+     * Settings
+     */
+    @Provides
+    @Singleton
+    fun provideSettingsDataStore(@ApplicationContext context: Context) =
+        SettingsDataStore(context)
+
+    @Provides
+    @Singleton
+    fun provideAppSettingsProvider(settingsRepository: SettingsRepositoryImpl): AppSettingsProvider =
+        settingsRepository
+
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(settingsDataStore: SettingsDataStore) =
+        SettingsRepositoryImpl(settingsDataStore)
 
     /**
      * Auth Use Cases
      */
     @Provides
     @Singleton
-    fun provideLoginUseCase(authRepository: AuthRepository): LoginUseCase {
-        return LoginUseCase(authRepository)
-    }
+    fun provideLoginUseCase(authRepository: AuthRepository) =
+        LoginUseCase(authRepository)
 
     @Provides
     @Singleton
-    fun provideRegisterUseCase(authRepository: AuthRepository): RegisterUseCase {
-        return RegisterUseCase(authRepository)
-    }
-
-    @Provides
-    @Singleton
-    fun provideSaveTokenSessionUseCase(authRepository: AuthRepository): SaveTokenSessionUseCase {
-        return SaveTokenSessionUseCase(authRepository)
-    }
+    fun provideRegisterUseCase(authRepository: AuthRepository) =
+        RegisterUseCase(authRepository)
 
     /**
      * Core Use Cases
      */
     @Provides
     @Singleton
-    fun provideGetTokenSessionUseCase(authTokenProvider: AuthTokenProvider): GetTokenSessionUseCase {
-        return GetTokenSessionUseCase(authTokenProvider)
-    }
+    fun provideGetTokenSessionUseCase(authTokenProvider: AuthTokenProvider) =
+        GetTokenSessionUseCase(authTokenProvider)
 
     @Provides
     @Singleton
-    fun provideLogoutUseCase(authTokenProvider: AuthTokenProvider): LogoutUseCase {
-        return LogoutUseCase(authTokenProvider)
-    }
+    fun provideLogoutUseCase(authTokenProvider: AuthTokenProvider) =
+        LogoutUseCase(authTokenProvider)
+
+    @Provides
+    @Singleton
+    fun provideGetAppSettingsUseCase(appSettingsProvider: AppSettingsProvider) =
+        GetAppSettingsUseCase(appSettingsProvider)
+
+    @Provides
+    @Singleton
+    fun provideSetAppSettingsUseCase(appSettingsProvider: AppSettingsProvider) =
+        SetAppSettingsUseCase(appSettingsProvider)
 }

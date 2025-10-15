@@ -22,4 +22,5 @@ dependencyResolutionManagement {
 rootProject.name = "EDCSimulation"
 include(":app")
 include(":core")
-include(":auth")
+include("feature:auth")
+include(":feature:settings")
