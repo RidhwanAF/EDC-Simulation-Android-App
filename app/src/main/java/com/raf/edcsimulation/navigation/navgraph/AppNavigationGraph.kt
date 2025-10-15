@@ -1,4 +1,4 @@
-package com.raf.edcsimulation.navigation
+package com.raf.edcsimulation.navigation.navgraph
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
@@ -12,14 +12,18 @@ import androidx.navigation.navigation
 import com.raf.edcsimulation.auth.presentation.screens.LoginScreen
 import com.raf.edcsimulation.auth.presentation.screens.RegisterScreen
 import com.raf.edcsimulation.auth.presentation.viewmodel.AuthViewModel
-import com.raf.edcsimulation.card.presentation.CardMenuView
+import com.raf.edcsimulation.core.domain.model.AppSettings
+import com.raf.edcsimulation.navigation.routes.MainRoutes
 import com.raf.edcsimulation.utils.sharedViewModel
+import com.raf.edcsimulation.viewmodel.AppViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun AppNavigationGraph(
     navController: NavHostController,
-    startDestination: Routes,
+    startDestination: MainRoutes,
+    appViewModel: AppViewModel,
+    appSettings: AppSettings
 ) {
     SharedTransitionLayout(
         modifier = Modifier.fillMaxSize()
@@ -28,40 +32,40 @@ fun AppNavigationGraph(
             navController = navController,
             startDestination = startDestination
         ) {
-            navigation<Routes.Auth>(
-                startDestination = Routes.Login,
+            navigation<MainRoutes.Auth>(
+                startDestination = MainRoutes.Login,
             ) {
-                composable<Routes.Login> {
+                composable<MainRoutes.Login> {
                     val authViewModel = it.sharedViewModel<AuthViewModel>(navController)
 
                     LoginScreen(
                         viewModel = authViewModel,
                         animatedContentScope = this@composable,
                         onNavigateToRegister = {
-                            navController.navigate(Routes.Register) {
+                            navController.navigate(MainRoutes.Register) {
                                 launchSingleTop = true
                             }
                         },
                         onLoginSuccess = {
-                            navController.navigate(Routes.MainMenu) {
+                            navController.navigate(MainRoutes.MainMenu) {
                                 launchSingleTop = true
-                                popUpTo(Routes.Login) {
+                                popUpTo(MainRoutes.Login) {
                                     inclusive = true
                                 }
                             }
                         }
                     )
                 }
-                composable<Routes.Register> {
+                composable<MainRoutes.Register> {
                     val authViewModel = it.sharedViewModel<AuthViewModel>(navController)
 
                     RegisterScreen(
                         viewModel = authViewModel,
                         animatedContentScope = this@composable,
                         onNavigateToLogin = {
-                            navController.navigate(Routes.Login) {
+                            navController.navigate(MainRoutes.Login) {
                                 launchSingleTop = true
-                                popUpTo(Routes.Register) {
+                                popUpTo(MainRoutes.Register) {
                                     inclusive = true
                                 }
                             }
@@ -70,22 +74,14 @@ fun AppNavigationGraph(
                 }
             }
 
-            navigation<Routes.MainMenu>(
-                startDestination = Routes.Sale,
+            navigation<MainRoutes.MainMenu>(
+                startDestination = MainRoutes.Sale,
             ) {
-                composable<Routes.Sale> {
-                    CardMenuView(
-                        onCardProcessed = {
-                            // TODO
-                        }
+                composable<MainRoutes.Sale> {
+                    SaleNavigationGraph(
+                        appViewModel = appViewModel,
+                        appSettings = appSettings
                     )
-//                    SaleScreen()
-                }
-                composable<Routes.History> {
-//                    HistoryScreen()
-                }
-                composable<Routes.Settlement> {
-//                    SettlementScreen()
                 }
             }
         }

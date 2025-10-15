@@ -14,8 +14,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.raf.edcsimulation.core.domain.model.DarkTheme
 import com.raf.edcsimulation.core.presentation.theme.EDCSimulationTheme
-import com.raf.edcsimulation.navigation.AppNavigationGraph
-import com.raf.edcsimulation.navigation.Routes
+import com.raf.edcsimulation.navigation.navgraph.AppNavigationGraph
+import com.raf.edcsimulation.navigation.routes.MainRoutes
+import com.raf.edcsimulation.viewmodel.AppState
+import com.raf.edcsimulation.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -48,10 +50,10 @@ class MainActivity : ComponentActivity() {
             val startDestination = remember(appState) {
                 when (appState) {
                     is AppState.Loaded -> {
-                        if ((appState as AppState.Loaded).isLoggedIn) Routes.MainMenu else Routes.Auth
+                        if ((appState as AppState.Loaded).isLoggedIn) MainRoutes.MainMenu else MainRoutes.Auth
                     }
 
-                    else -> Routes.Auth
+                    else -> MainRoutes.Auth
                 }
             }
 
@@ -68,7 +70,9 @@ class MainActivity : ComponentActivity() {
                 ) {
                     AppNavigationGraph(
                         navController = navController,
-                        startDestination = startDestination
+                        startDestination = startDestination,
+                        appViewModel = appViewModel,
+                        appSettings = appData.appSettings
                     )
                 }
             }

@@ -6,26 +6,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.raf.edcsimulation.core.domain.model.AppSettings
 import com.raf.edcsimulation.core.domain.model.CardType
-import com.raf.edcsimulation.core.domain.usecase.GetAppSettingsUseCase
-import com.raf.edcsimulation.core.domain.usecase.LogoutUseCase
-import com.raf.edcsimulation.core.domain.usecase.SetAppSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CardViewModel @Inject constructor(
-    private val getAppSettingsUseCase: GetAppSettingsUseCase,
-    private val setAppSettingsUseCase: SetAppSettingsUseCase,
-    private val logoutUseCase: LogoutUseCase,
-) : ViewModel() {
+class CardViewModel @Inject constructor() : ViewModel() {
 
     val listCard = listOf(
         CardData(
@@ -54,23 +45,19 @@ class CardViewModel @Inject constructor(
     var cardNumber by mutableStateOf("")
         private set
 
-    init {
-        getAppSettings()
-    }
-
     fun onCardNumberChange(cardNumber: String) {
         this.cardNumber = cardNumber
     }
 
-    fun onCardTypeChange(cardData: CardData?) {
+    fun onCardTypeChange(cardType: CardType?) {
         _uiState.update {
-            it.copy(cardData = cardData)
+            it.copy(cardType = cardType)
         }
     }
 
     fun processCard(onCardProcessed: () -> Unit) {
         viewModelScope.launch {
-            val processMessage = when (uiState.value.cardData?.cardType) {
+            val processMessage = when (uiState.value.cardType) {
                 CardType.CHIP -> "Reading Chip..."
                 CardType.CONTACT_LESS -> "Reading NFC Card..."
                 else -> null
@@ -95,36 +82,6 @@ class CardViewModel @Inject constructor(
             delay(3000)
             _uiState.value = _uiState.value.copy(isLoading = false, message = null)
             onCardProcessed()
-        }
-    }
-
-    /**
-     * App Settings
-     */
-    private fun getAppSettings() {
-        viewModelScope.launch {
-            val appSettings = getAppSettingsUseCase().first()
-            _uiState.update {
-                it.copy(
-                    appSettings = appSettings
-                )
-            }
-        }
-    }
-
-    fun setAppSettings(appSettings: AppSettings) {
-        viewModelScope.launch {
-            setAppSettingsUseCase(appSettings)
-            getAppSettings()
-        }
-    }
-
-    /**
-     * Logout
-     */
-    fun logout() {
-        viewModelScope.launch {
-            logoutUseCase()
         }
     }
 }

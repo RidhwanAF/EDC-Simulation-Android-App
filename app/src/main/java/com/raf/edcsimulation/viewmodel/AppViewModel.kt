@@ -1,21 +1,27 @@
-package com.raf.edcsimulation
+package com.raf.edcsimulation.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.raf.edcsimulation.core.domain.model.AppSettings
 import com.raf.edcsimulation.core.domain.usecase.GetAppSettingsUseCase
 import com.raf.edcsimulation.core.domain.usecase.GetTokenSessionUseCase
+import com.raf.edcsimulation.core.domain.usecase.LogoutUseCase
+import com.raf.edcsimulation.core.domain.usecase.SetAppSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
     getTokenSessionUseCase: GetTokenSessionUseCase,
     getAppSettingsUseCase: GetAppSettingsUseCase,
+    private val setAppSettingsUseCase: SetAppSettingsUseCase,
+    private val logoutUseCase: LogoutUseCase,
 ) : ViewModel() {
 
     val appState: StateFlow<AppState> = combine(
@@ -29,6 +35,18 @@ class AppViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000L),
         initialValue = AppState.Loading,
     )
+
+    fun setAppSettings(appSettings: AppSettings) {
+        viewModelScope.launch {
+            setAppSettingsUseCase(appSettings)
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase()
+        }
+    }
 
     companion object {
         private const val TAG = "AppViewModel"

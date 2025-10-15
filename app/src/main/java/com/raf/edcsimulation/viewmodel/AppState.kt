@@ -1,4 +1,4 @@
-package com.raf.edcsimulation
+package com.raf.edcsimulation.viewmodel
 
 import com.raf.edcsimulation.core.domain.model.AppSettings
 
