@@ -7,4 +7,6 @@ data class HistoryUiState(
     val errorMessage: String? = null,
     val sortDataAsc: Boolean = true,
     val data: List<HistoryData> = emptyList(),
+    val settlementDataCount: Int = 0,
+    val approvedDataCount: Int = 0,
 )

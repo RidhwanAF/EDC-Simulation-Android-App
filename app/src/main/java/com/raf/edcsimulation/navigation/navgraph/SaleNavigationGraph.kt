@@ -31,6 +31,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -41,10 +42,12 @@ import com.raf.edcsimulation.core.domain.model.AppSettings
 import com.raf.edcsimulation.core.presentation.components.LogoutDialog
 import com.raf.edcsimulation.core.presentation.components.SettingsDialog
 import com.raf.edcsimulation.history.presentation.screens.HistoryScreen
+import com.raf.edcsimulation.history.presentation.viewmodel.HistoryViewModel
 import com.raf.edcsimulation.navigation.listSaleBottomBarMenu
 import com.raf.edcsimulation.navigation.routes.SaleRoutes
 import com.raf.edcsimulation.navigation.routes.isOnThisRoute
 import com.raf.edcsimulation.sale.presentation.screens.SaleScreen
+import com.raf.edcsimulation.settlement.presentation.screens.SettlementScreen
 import com.raf.edcsimulation.ui.SaleBottomBar
 import com.raf.edcsimulation.ui.SaleDialogState
 import com.raf.edcsimulation.viewmodel.AppViewModel
@@ -74,6 +77,9 @@ fun SharedTransitionScope.SaleNavigationGraph(
     var processedCardNumber by rememberSaveable {
         mutableStateOf("")
     }
+
+    val historyViewModel: HistoryViewModel = hiltViewModel()
+    val historyUiState by historyViewModel.uiState.collectAsStateWithLifecycle()
 
     Box(
         contentAlignment = Alignment.Center,
@@ -182,6 +188,7 @@ fun SharedTransitionScope.SaleNavigationGraph(
                                 onDismiss = {
                                     dialogState = SaleDialogState.NONE
                                     processedCardNumber = ""
+                                    historyViewModel.fetchHistory()
                                 }
                             )
                         } else {
@@ -196,11 +203,20 @@ fun SharedTransitionScope.SaleNavigationGraph(
                     }
                     composable<SaleRoutes.History> {
                         HistoryScreen(
-                            paddingValues = innerPadding
+                            paddingValues = innerPadding,
+                            viewModel = historyViewModel,
+                            uiState = historyUiState,
                         )
                     }
                     composable<SaleRoutes.Settlement> {
-                        Text("bb")
+                        SettlementScreen(
+                            paddingValues = innerPadding,
+                            settlementDataCount = historyUiState.settlementDataCount,
+                            approvedDataCount = historyUiState.approvedDataCount,
+                            onSettledSuccessfully = {
+                                historyViewModel.fetchHistory()
+                            }
+                        )
                     }
                 }
             }

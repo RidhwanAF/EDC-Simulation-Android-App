@@ -35,12 +35,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.raf.edcsimulation.history.presentation.components.HistoryItem
 import com.raf.edcsimulation.history.presentation.components.HistoryTableHeader
+import com.raf.edcsimulation.history.presentation.viewmodel.HistoryUiState
 import com.raf.edcsimulation.history.presentation.viewmodel.HistoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,9 +49,9 @@ import com.raf.edcsimulation.history.presentation.viewmodel.HistoryViewModel
 fun HistoryScreen(
     paddingValues: PaddingValues = PaddingValues(),
     viewModel: HistoryViewModel = hiltViewModel(),
+    uiState: HistoryUiState = HistoryUiState(),
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val infiniteTransition = rememberInfiniteTransition()
     val animateRotation by infiniteTransition.animateFloat(
@@ -71,7 +72,9 @@ fun HistoryScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "History"
+                        text = "History",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 actions = {

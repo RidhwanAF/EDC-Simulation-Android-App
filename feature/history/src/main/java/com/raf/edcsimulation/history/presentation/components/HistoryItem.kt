@@ -20,6 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.raf.edcsimulation.core.data.utils.CurrencyFormatter.toRupiah
+import com.raf.edcsimulation.core.presentation.theme.approvedColor
+import com.raf.edcsimulation.core.presentation.theme.onApprovedColor
 import com.raf.edcsimulation.history.domain.models.HistoryData
 
 @Composable
@@ -27,6 +29,8 @@ fun HistoryItem(
     modifier: Modifier = Modifier,
     historyData: HistoryData,
 ) {
+    val isApproved = historyData.status.equals("approved", true)
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -54,11 +58,8 @@ fun HistoryItem(
         )
         HistoryItem(
             label = historyData.status,
-            color = if (historyData.status.equals(
-                    "approved",
-                    true
-                )
-            ) Color(0xFFB0CE88) else Color.Unspecified,
+            color = if (isApproved) approvedColor else Color.Unspecified,
+            textColor = if (isApproved) onApprovedColor else Color.Unspecified,
             centerAligned = true,
             modifier = Modifier.weight(0.2f)
         )
@@ -71,6 +72,7 @@ private fun HistoryItem(
     modifier: Modifier = Modifier,
     label: String = "",
     color: Color = Color.Unspecified,
+    textColor: Color = Color.Unspecified,
     showStartDivider: Boolean = true,
     showEndDivider: Boolean = false,
     centerAligned: Boolean = false,
@@ -90,6 +92,7 @@ private fun HistoryItem(
             fontWeight = FontWeight.Bold,
             textAlign = if (centerAligned || label.isBlank()) TextAlign.Center else TextAlign.Start,
             maxLines = 1,
+            color = textColor,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .padding(8.dp)

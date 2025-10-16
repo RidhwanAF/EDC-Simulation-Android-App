@@ -23,6 +23,9 @@ import com.raf.edcsimulation.history.domain.usecase.GetHistoryLocalUseCase
 import com.raf.edcsimulation.sale.data.remote.SaleApiService
 import com.raf.edcsimulation.sale.data.repository.SaleRepositoryImpl
 import com.raf.edcsimulation.sale.domain.usecase.SubmitSaleUseCase
+import com.raf.edcsimulation.settlement.data.remote.SettlementApiService
+import com.raf.edcsimulation.settlement.data.repository.SettlementRepositoryImpl
+import com.raf.edcsimulation.settlement.domain.usecase.ProcessSettlementUseCase
 import com.raf.settings.data.local.SettingsDataStore
 import com.raf.settings.data.repository.SettingsRepositoryImpl
 import dagger.Module
@@ -175,6 +178,29 @@ object AppModule {
     @Singleton
     fun provideGetHistoryLocalUseCase(historyRepository: HistoryRepositoryImpl) =
         GetHistoryLocalUseCase(historyRepository)
+
+    /**
+     * Settlement
+     */
+    @Provides
+    @Singleton
+    fun provideSettlementApiService(retrofit: Retrofit): SettlementApiService =
+        retrofit.create(SettlementApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideSettlementRepository(
+        authTokenProvider: AuthTokenProvider,
+        settlementApiService: SettlementApiService,
+    ) = SettlementRepositoryImpl(
+        authTokenProvider = authTokenProvider,
+        settlementApiService = settlementApiService
+    )
+
+    @Provides
+    @Singleton
+    fun provideProcessSettlementUseCase(settlementRepository: SettlementRepositoryImpl) =
+        ProcessSettlementUseCase(settlementRepository)
 
     /**
      * Core

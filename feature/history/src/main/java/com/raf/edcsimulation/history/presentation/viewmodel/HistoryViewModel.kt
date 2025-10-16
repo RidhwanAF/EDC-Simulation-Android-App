@@ -65,6 +65,12 @@ class HistoryViewModel @Inject constructor(
                         historyData.id
                     } else history.sortedByDescending { historyData ->
                         historyData.id
+                    },
+                    settlementDataCount = history.count { historyData ->
+                        historyData.status.equals("settled", true)
+                    },
+                    approvedDataCount = history.count { historyData ->
+                        historyData.status.equals("approved", true)
                     }
                 )
             }
@@ -84,11 +90,21 @@ class HistoryViewModel @Inject constructor(
                     }
 
                     is APIResult.Success -> {
-                        getLocalHistory()
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = null
+                                errorMessage = null,
+                                data = if (it.sortDataAsc) result.data.sortedBy { historyData ->
+                                    historyData.id
+                                } else result.data.sortedByDescending { historyData ->
+                                    historyData.id
+                                },
+                                settlementDataCount = result.data.count { historyData ->
+                                    historyData.status.equals("settled", true)
+                                },
+                                approvedDataCount = result.data.count { historyData ->
+                                    historyData.status.equals("approved", true)
+                                }
                             )
                         }
                     }

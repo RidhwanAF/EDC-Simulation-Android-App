@@ -1,8 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.util.Properties
 
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
@@ -10,42 +9,19 @@ plugins {
     alias(libs.plugins.serialization)
 }
 
-val localProperties = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) {
-        load(file.inputStream())
-    }
-}
-
-fun getPropertyOrEmpty(key: String): String {
-    return localProperties.getProperty(key) ?: ""
-}
-
 android {
-    namespace = "com.raf.edcsimulation"
+    namespace = "com.raf.edcsimulation.settlement"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.raf.edcsimulation"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
-        debug {
-            buildConfigField("String", "BASE_URL", "\"${getPropertyOrEmpty("BASE_URL")}\"")
-        }
-
         release {
-            buildConfigField("String", "BASE_URL", "\"${getPropertyOrEmpty("BASE_URL")}\"")
-
-            isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -59,7 +35,6 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig = true
     }
 }
 
@@ -71,12 +46,6 @@ kotlin {
 
 dependencies {
     implementation(project(":core"))
-    implementation(project(":feature:auth"))
-    implementation(project(":feature:settings"))
-    implementation(project(":feature:card"))
-    implementation(project(":feature:sale"))
-    implementation(project(":feature:history"))
-    implementation(project(":feature:settlement"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -94,10 +63,12 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.androidx.compose.material.icons.extended)
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
     // Animation
     implementation(libs.androidx.animation)
+    // Data Store
+    implementation(libs.androidx.datastore.preferences)
     // Dagger Hilt
     implementation(libs.dagger.hilt.android)
     ksp(libs.dagger.hilt.android.compiler)
