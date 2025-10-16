@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/auth" />
             <option value="$PROJECT_DIR$/feature/card" />
+            <option value="$PROJECT_DIR$/feature/history" />
             <option value="$PROJECT_DIR$/feature/sale" />
             <option value="$PROJECT_DIR$/feature/settings" />
           </set>

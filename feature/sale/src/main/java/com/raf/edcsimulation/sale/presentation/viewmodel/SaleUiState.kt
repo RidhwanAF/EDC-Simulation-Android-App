@@ -1,6 +1,6 @@
 package com.raf.edcsimulation.sale.presentation.viewmodel
 
-import com.raf.edcsimulation.sale.domain.model.SaleData
+import com.raf.edcsimulation.sale.domain.models.SaleData
 
 data class SaleUiState(
     val isLoading: Boolean = false,

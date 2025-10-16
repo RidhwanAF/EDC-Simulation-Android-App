@@ -2,9 +2,9 @@ package com.raf.edcsimulation.sale.data.repository
 
 import com.raf.edcsimulation.core.domain.contracts.AuthTokenProvider
 import com.raf.edcsimulation.core.domain.model.APIResult
-import com.raf.edcsimulation.sale.data.model.SaleBody
+import com.raf.edcsimulation.sale.data.models.SaleBody
 import com.raf.edcsimulation.sale.data.remote.SaleApiService
-import com.raf.edcsimulation.sale.domain.model.SaleData
+import com.raf.edcsimulation.sale.domain.models.SaleData
 import com.raf.edcsimulation.sale.domain.repository.SaleRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

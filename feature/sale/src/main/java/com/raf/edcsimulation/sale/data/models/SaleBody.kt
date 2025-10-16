@@ -1,4 +1,4 @@
-package com.raf.edcsimulation.sale.data.model
+package com.raf.edcsimulation.sale.data.models
 
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SaleBody(
     val amount: Long,
-    @SerializedName("card_number")
+    @SerializedName("CardNumber")
     val cardNumber: String,
     val description: String? = null,
-    @SerializedName("merchant_id")
+    @SerializedName("MerchantID")
     val merchantId: String,
 )

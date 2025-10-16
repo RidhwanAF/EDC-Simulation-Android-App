@@ -1,7 +1,7 @@
 package com.raf.edcsimulation.sale.data.remote
 
-import com.raf.edcsimulation.sale.data.model.SaleBody
-import com.raf.edcsimulation.sale.data.model.SaleResponse
+import com.raf.edcsimulation.sale.data.models.SaleBody
+import com.raf.edcsimulation.sale.data.models.SaleResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header

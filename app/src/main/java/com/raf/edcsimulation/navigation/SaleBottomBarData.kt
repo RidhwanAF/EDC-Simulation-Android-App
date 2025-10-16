@@ -2,9 +2,11 @@ package com.raf.edcsimulation.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.PointOfSale
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.NoteAlt
 import androidx.compose.material.icons.outlined.PointOfSale
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,8 +34,8 @@ val listSaleBottomBarMenu = listOf(
     ),
     SaleBottomBarData(
         title = "Settlement",
-        icon = Icons.Outlined.Settings,
-        activeIcon = Icons.Default.Settings,
+        icon = Icons.Outlined.NoteAlt,
+        activeIcon = Icons.Default.NoteAlt,
         route = SaleRoutes.Settlement
     ),
 )

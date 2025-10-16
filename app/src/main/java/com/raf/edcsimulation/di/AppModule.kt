@@ -15,6 +15,11 @@ import com.raf.edcsimulation.core.domain.usecase.GetTokenSessionUseCase
 import com.raf.edcsimulation.core.domain.usecase.GetUserIdUseCase
 import com.raf.edcsimulation.core.domain.usecase.LogoutUseCase
 import com.raf.edcsimulation.core.domain.usecase.SetAppSettingsUseCase
+import com.raf.edcsimulation.history.data.local.HistoryDataStore
+import com.raf.edcsimulation.history.data.remote.HistoryApiService
+import com.raf.edcsimulation.history.data.repository.HistoryRepositoryImpl
+import com.raf.edcsimulation.history.domain.usecase.FetchHistoryUseCase
+import com.raf.edcsimulation.history.domain.usecase.GetHistoryLocalUseCase
 import com.raf.edcsimulation.sale.data.remote.SaleApiService
 import com.raf.edcsimulation.sale.data.repository.SaleRepositoryImpl
 import com.raf.edcsimulation.sale.domain.usecase.SubmitSaleUseCase
@@ -136,6 +141,40 @@ object AppModule {
     @Singleton
     fun provideSubmitSaleUseCase(saleRepository: SaleRepositoryImpl) =
         SubmitSaleUseCase(saleRepository)
+
+    /**
+     * History
+     */
+    @Provides
+    @Singleton
+    fun provideHistoryDataStore(@ApplicationContext context: Context) = HistoryDataStore(context)
+
+    @Provides
+    @Singleton
+    fun provideHistoryApiService(retrofit: Retrofit): HistoryApiService =
+        retrofit.create(HistoryApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideHistoryRepository(
+        authTokenProvider: AuthTokenProvider,
+        historyApiService: HistoryApiService,
+        historyDataStore: HistoryDataStore,
+    ) = HistoryRepositoryImpl(
+        authTokenProvider = authTokenProvider,
+        historyApiService = historyApiService,
+        historyDataStore = historyDataStore
+    )
+
+    @Provides
+    @Singleton
+    fun provideFetchHistoryUseCase(historyRepository: HistoryRepositoryImpl) =
+        FetchHistoryUseCase(historyRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetHistoryLocalUseCase(historyRepository: HistoryRepositoryImpl) =
+        GetHistoryLocalUseCase(historyRepository)
 
     /**
      * Core

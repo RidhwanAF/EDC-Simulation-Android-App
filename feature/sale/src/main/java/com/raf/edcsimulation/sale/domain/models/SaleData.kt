@@ -1,4 +1,4 @@
-package com.raf.edcsimulation.sale.domain.model
+package com.raf.edcsimulation.sale.domain.models
 
 data class SaleData(
     val status: String,

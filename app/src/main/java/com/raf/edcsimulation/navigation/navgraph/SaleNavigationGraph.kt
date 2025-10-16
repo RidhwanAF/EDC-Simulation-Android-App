@@ -28,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -41,6 +40,7 @@ import com.raf.edcsimulation.card.presentation.CardMenuView
 import com.raf.edcsimulation.core.domain.model.AppSettings
 import com.raf.edcsimulation.core.presentation.components.LogoutDialog
 import com.raf.edcsimulation.core.presentation.components.SettingsDialog
+import com.raf.edcsimulation.history.presentation.screens.HistoryScreen
 import com.raf.edcsimulation.navigation.listSaleBottomBarMenu
 import com.raf.edcsimulation.navigation.routes.SaleRoutes
 import com.raf.edcsimulation.navigation.routes.isOnThisRoute
@@ -82,18 +82,16 @@ fun SharedTransitionScope.SaleNavigationGraph(
     ) {
         Scaffold(
             topBar = {
-                if (dialogState == SaleDialogState.FORM) return@Scaffold
+                if (dialogState == SaleDialogState.FORM || currentMenu?.route != SaleRoutes.Sale) return@Scaffold
                 TopAppBar(
                     title = {
                         Text(
-                            text = currentMenu?.title
-                                ?: stringResource(com.raf.edcsimulation.R.string.app_name),
+                            text = currentMenu.title,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                     },
                     actions = {
-                        if (currentMenu?.route != SaleRoutes.Sale) return@TopAppBar
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -197,7 +195,9 @@ fun SharedTransitionScope.SaleNavigationGraph(
                         }
                     }
                     composable<SaleRoutes.History> {
-                        Text("aa")
+                        HistoryScreen(
+                            paddingValues = innerPadding
+                        )
                     }
                     composable<SaleRoutes.Settlement> {
                         Text("bb")
