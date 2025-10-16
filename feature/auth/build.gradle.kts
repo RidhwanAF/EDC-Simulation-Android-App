@@ -32,15 +32,8 @@ android {
         debug {
             buildConfigField("String", "SECRET_KEY_STRING", "\"${getPropertyOrEmpty("BASE_URL")}\"")
         }
-
         release {
             buildConfigField("String", "SECRET_KEY_STRING", "\"${getPropertyOrEmpty("BASE_URL")}\"")
-
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
     }
     defaultConfig {
