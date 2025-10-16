@@ -74,6 +74,7 @@ dependencies {
     implementation(project(":feature:auth"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:card"))
+    implementation(project(":feature:sale"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

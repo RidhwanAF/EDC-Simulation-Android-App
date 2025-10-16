@@ -24,12 +24,14 @@ class CardViewModel @Inject constructor() : ViewModel() {
             cardType = CardType.CHIP,
             cardColor = Color(0xFFCDEDA3),
             cardTextColor = Color(0xFF354E16),
+            cardNumber = "1234567890123456",
         ),
         CardData(
             cardTitle = "Contact Less Card",
             cardType = CardType.CONTACT_LESS,
             cardColor = Color(0xFF284777),
             cardTextColor = Color(0xFFD6E3FF),
+            cardNumber = "0987654321098765",
         ),
         CardData(
             cardTitle = "Manual Card",

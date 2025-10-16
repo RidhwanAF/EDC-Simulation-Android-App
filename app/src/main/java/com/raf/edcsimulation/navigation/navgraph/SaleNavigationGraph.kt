@@ -44,6 +44,7 @@ import com.raf.edcsimulation.core.presentation.components.SettingsDialog
 import com.raf.edcsimulation.navigation.listSaleBottomBarMenu
 import com.raf.edcsimulation.navigation.routes.SaleRoutes
 import com.raf.edcsimulation.navigation.routes.isOnThisRoute
+import com.raf.edcsimulation.sale.presentation.screens.SaleScreen
 import com.raf.edcsimulation.ui.SaleBottomBar
 import com.raf.edcsimulation.ui.SaleDialogState
 import com.raf.edcsimulation.viewmodel.AppViewModel
@@ -62,13 +63,16 @@ fun SharedTransitionScope.SaleNavigationGraph(
             saleRoute.route.isOnThisRoute(
                 currentBackStackEntry
             )
-        }?.route ?: SaleRoutes.Sale
-
+        }
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     var dialogState by rememberSaveable {
         mutableStateOf(SaleDialogState.NONE)
+    }
+
+    var processedCardNumber by rememberSaveable {
+        mutableStateOf("")
     }
 
     Box(
@@ -78,15 +82,18 @@ fun SharedTransitionScope.SaleNavigationGraph(
     ) {
         Scaffold(
             topBar = {
+                if (dialogState == SaleDialogState.FORM) return@Scaffold
                 TopAppBar(
                     title = {
                         Text(
-                            text = stringResource(com.raf.edcsimulation.card.R.string.app_name),
+                            text = currentMenu?.title
+                                ?: stringResource(com.raf.edcsimulation.R.string.app_name),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                     },
                     actions = {
+                        if (currentMenu?.route != SaleRoutes.Sale) return@TopAppBar
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -143,8 +150,9 @@ fun SharedTransitionScope.SaleNavigationGraph(
                 )
             },
             bottomBar = {
+                if (dialogState == SaleDialogState.FORM) return@Scaffold
                 SaleBottomBar(
-                    currentRoute = currentMenu,
+                    currentRoute = currentMenu?.route ?: SaleRoutes.Sale,
                     onNavigate = {
                         navController.navigate(it.route) {
                             launchSingleTop = true
@@ -169,12 +177,24 @@ fun SharedTransitionScope.SaleNavigationGraph(
                     startDestination = SaleRoutes.Sale,
                 ) {
                     composable<SaleRoutes.Sale> {
-                        CardMenuView(
-                            paddingValues = innerPadding,
-                            onCardProcessed = {
-                                // TODO
-                            }
-                        )
+                        if (dialogState == SaleDialogState.FORM) {
+                            SaleScreen(
+                                paddingValues = innerPadding,
+                                cardNumber = processedCardNumber,
+                                onDismiss = {
+                                    dialogState = SaleDialogState.NONE
+                                    processedCardNumber = ""
+                                }
+                            )
+                        } else {
+                            CardMenuView(
+                                paddingValues = innerPadding,
+                                onCardProcessed = { cardNumber ->
+                                    dialogState = SaleDialogState.FORM
+                                    processedCardNumber = cardNumber
+                                }
+                            )
+                        }
                     }
                     composable<SaleRoutes.History> {
                         Text("aa")

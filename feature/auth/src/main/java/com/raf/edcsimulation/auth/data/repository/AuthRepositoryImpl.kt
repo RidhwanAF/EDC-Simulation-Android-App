@@ -1,11 +1,13 @@
 package com.raf.edcsimulation.auth.data.repository
 
+import android.util.Base64
 import android.util.Log
 import com.raf.edcsimulation.auth.BuildConfig
 import com.raf.edcsimulation.auth.data.local.AuthDataStore
 import com.raf.edcsimulation.auth.data.models.ErrorResponse
 import com.raf.edcsimulation.auth.data.models.LoginRequest
 import com.raf.edcsimulation.auth.data.models.RegisterRequest
+import com.raf.edcsimulation.auth.data.models.UserJWT
 import com.raf.edcsimulation.auth.data.remote.AuthApiService
 import com.raf.edcsimulation.auth.domain.models.LoginData
 import com.raf.edcsimulation.auth.domain.models.RegisterData
@@ -14,6 +16,7 @@ import com.raf.edcsimulation.core.data.utils.SessionEncryptionManager
 import com.raf.edcsimulation.core.domain.contracts.AuthTokenProvider
 import com.raf.edcsimulation.core.domain.model.APIResult
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -108,6 +111,29 @@ class AuthRepositoryImpl @Inject constructor(
         val encryptedToken = authDataStore.getJwtToken()
         return encryptedToken.map { token ->
             token?.let { SessionEncryptionManager.decrypt(it, BuildConfig.SECRET_KEY_STRING) }
+        }
+    }
+
+    override suspend fun getUserId(): String? {
+        return try {
+            val authToken = getAuthTokenSession().firstOrNull() ?: return null
+            // Split the JWT into its three parts (header, payload, signature)
+            val parts = authToken.split(".")
+            if (parts.size != 3) {
+                Log.e(TAG, "getUserId: Invalid JWT format")
+                return null
+            }
+            // Decode the Base64Url-encoded payload (the second part)
+            val payload = parts[1]
+            val decodedPayloadBytes = Base64.decode(payload, Base64.URL_SAFE)
+            val decodedPayloadString = String(decodedPayloadBytes, Charsets.UTF_8)
+
+            val json = Json { ignoreUnknownKeys = true }
+            val userJWT = json.decodeFromString<UserJWT>(decodedPayloadString)
+            userJWT.userId.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "getUserId: ${e.message}")
+            null
         }
     }
 

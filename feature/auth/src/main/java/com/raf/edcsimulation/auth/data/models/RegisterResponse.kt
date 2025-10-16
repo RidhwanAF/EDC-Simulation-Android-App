@@ -1,12 +1,12 @@
 package com.raf.edcsimulation.auth.data.models
 
-import kotlinx.serialization.SerialName
+import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class RegisterResponse(
-    @SerialName("error")
+    @SerializedName("error")
     val error: String?,
-    @SerialName("message")
+    @SerializedName("message")
     val message: String?,
 )

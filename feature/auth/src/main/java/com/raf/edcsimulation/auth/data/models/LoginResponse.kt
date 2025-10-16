@@ -1,14 +1,14 @@
 package com.raf.edcsimulation.auth.data.models
 
-import kotlinx.serialization.SerialName
+import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginResponse(
-    @SerialName("error")
+    @SerializedName("error")
     val error: String?,
-    @SerialName("message")
+    @SerializedName("message")
     val message: String?,
-    @SerialName("token")
+    @SerializedName("token")
     val token: String?,
 )

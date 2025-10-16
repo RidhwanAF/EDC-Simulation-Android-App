@@ -42,7 +42,7 @@ import com.raf.edcsimulation.core.domain.model.CardType
 fun SharedTransitionScope.CardMenuView(
     paddingValues: PaddingValues = PaddingValues(),
     viewModel: CardViewModel = hiltViewModel(),
-    onCardProcessed: () -> Unit,
+    onCardProcessed: (String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -101,9 +101,11 @@ fun SharedTransitionScope.CardMenuView(
             currentType = uiState.cardType,
             listCard = viewModel.listCard,
             visible = menuState == CardViewState.CARD_VIEW && uiState.cardType != CardType.MANUAL,
-            onCardProcessed = {
+            onCardProcessed = { cardNumber ->
                 viewModel.processCard(
-                    onCardProcessed = onCardProcessed
+                    onCardProcessed = {
+                        onCardProcessed(cardNumber)
+                    }
                 )
             },
             onDismiss = {
@@ -120,9 +122,11 @@ fun SharedTransitionScope.CardMenuView(
             onCardNumberChange = {
                 viewModel.onCardNumberChange(it)
             },
-            onProcessCard = {
+            onProcessCard = { cardNumber ->
                 viewModel.processManualCard(
-                    onCardProcessed = onCardProcessed
+                    onCardProcessed = {
+                        onCardProcessed(cardNumber)
+                    }
                 )
             },
             onDismiss = {

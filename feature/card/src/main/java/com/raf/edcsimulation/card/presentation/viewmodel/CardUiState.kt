@@ -16,4 +16,5 @@ data class CardData(
     val cardType: CardType,
     val cardColor: Color,
     val cardTextColor: Color,
+    val cardNumber: String? = null,
 )

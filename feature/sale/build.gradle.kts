@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "com.raf.edcsimulation.card"
+    namespace = "com.raf.edcsimulation.sale"
     compileSdk {
         version = release(36)
     }
@@ -68,9 +68,16 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     // Animation
     implementation(libs.androidx.animation)
+    // Data Store
+    implementation(libs.androidx.datastore.preferences)
     // Dagger Hilt
     implementation(libs.dagger.hilt.android)
     ksp(libs.dagger.hilt.android.compiler)
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    // OkHttp
+    implementation(libs.logging.interceptor)
 }

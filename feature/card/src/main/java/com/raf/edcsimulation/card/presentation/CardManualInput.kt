@@ -46,7 +46,7 @@ fun SharedTransitionScope.CardManualInput(
     cardData: CardData,
     cardNumberValue: String,
     onCardNumberChange: (String) -> Unit,
-    onProcessCard: () -> Unit,
+    onProcessCard: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -130,7 +130,7 @@ fun SharedTransitionScope.CardManualInput(
                 )
                 Button(
                     onClick = {
-                        onProcessCard.invoke()
+                        onProcessCard.invoke(cardNumberValue)
                     },
                     enabled = cardNumberValue.length >= 10,
                     modifier = Modifier

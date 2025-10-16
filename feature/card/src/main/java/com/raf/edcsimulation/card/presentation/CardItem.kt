@@ -7,7 +7,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -70,7 +73,7 @@ fun SharedTransitionScope.CardItem(
     currentType: CardType?,
     listCard: List<CardData>,
     visible: Boolean,
-    onCardProcessed: () -> Unit,
+    onCardProcessed: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val localConfig = LocalConfiguration.current
@@ -101,8 +104,24 @@ fun SharedTransitionScope.CardItem(
 
     LaunchedEffect(visible) {
         if (visible) {
-            delay(5000)
+            delay(4000)
             showHint = false
+        }
+    }
+
+    LaunchedEffect(showHint) {
+        if (showHint) {
+            offset.snapTo(Offset.Zero)
+            offset.animateTo(
+                targetValue = Offset(0f, 50f),
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 500),
+                    repeatMode = RepeatMode.Reverse
+                )
+            )
+        } else {
+            offset.stop()
+            offset.animateTo(Offset.Zero)
         }
     }
 
@@ -127,7 +146,7 @@ fun SharedTransitionScope.CardItem(
                                     y = -2000f
                                 )
                             )
-                            onCardProcessed.invoke()
+                            onCardProcessed.invoke(card.cardNumber ?: "")
                             delay(500)
                             offset.animateTo(Offset.Zero)
                         }
@@ -172,7 +191,7 @@ fun SharedTransitionScope.CardItem(
                                                     y = -2000f
                                                 )
                                             )
-                                            onCardProcessed.invoke()
+                                            onCardProcessed.invoke(card.cardNumber ?: "")
                                             delay(500)
                                             offset.animateTo(Offset.Zero)
                                         } else if (offset.value.y >= 500f) {

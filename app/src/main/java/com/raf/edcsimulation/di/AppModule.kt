@@ -12,8 +12,12 @@ import com.raf.edcsimulation.core.domain.contracts.AppSettingsProvider
 import com.raf.edcsimulation.core.domain.contracts.AuthTokenProvider
 import com.raf.edcsimulation.core.domain.usecase.GetAppSettingsUseCase
 import com.raf.edcsimulation.core.domain.usecase.GetTokenSessionUseCase
+import com.raf.edcsimulation.core.domain.usecase.GetUserIdUseCase
 import com.raf.edcsimulation.core.domain.usecase.LogoutUseCase
 import com.raf.edcsimulation.core.domain.usecase.SetAppSettingsUseCase
+import com.raf.edcsimulation.sale.data.remote.SaleApiService
+import com.raf.edcsimulation.sale.data.repository.SaleRepositoryImpl
+import com.raf.edcsimulation.sale.domain.usecase.SubmitSaleUseCase
 import com.raf.settings.data.local.SettingsDataStore
 import com.raf.settings.data.repository.SettingsRepositoryImpl
 import dagger.Module
@@ -82,6 +86,16 @@ object AppModule {
     @Singleton
     fun provideAuthTokenProvider(repository: AuthRepositoryImpl): AuthTokenProvider = repository
 
+    @Provides
+    @Singleton
+    fun provideLoginUseCase(authRepository: AuthRepository) =
+        LoginUseCase(authRepository)
+
+    @Provides
+    @Singleton
+    fun provideRegisterUseCase(authRepository: AuthRepository) =
+        RegisterUseCase(authRepository)
+
     /**
      * Settings
      */
@@ -101,25 +115,40 @@ object AppModule {
         SettingsRepositoryImpl(settingsDataStore)
 
     /**
-     * Auth Use Cases
+     * Sale
      */
     @Provides
     @Singleton
-    fun provideLoginUseCase(authRepository: AuthRepository) =
-        LoginUseCase(authRepository)
+    fun provideSaleApiService(retrofit: Retrofit): SaleApiService =
+        retrofit.create(SaleApiService::class.java)
 
     @Provides
     @Singleton
-    fun provideRegisterUseCase(authRepository: AuthRepository) =
-        RegisterUseCase(authRepository)
+    fun provideSaleRepository(
+        authTokenProvider: AuthTokenProvider,
+        saleApiService: SaleApiService,
+    ) = SaleRepositoryImpl(
+        authTokenProvider = authTokenProvider,
+        saleApiService = saleApiService
+    )
+
+    @Provides
+    @Singleton
+    fun provideSubmitSaleUseCase(saleRepository: SaleRepositoryImpl) =
+        SubmitSaleUseCase(saleRepository)
 
     /**
-     * Core Use Cases
+     * Core
      */
     @Provides
     @Singleton
     fun provideGetTokenSessionUseCase(authTokenProvider: AuthTokenProvider) =
         GetTokenSessionUseCase(authTokenProvider)
+
+    @Provides
+    @Singleton
+    fun provideGetUserIdUseCase(authTokenProvider: AuthTokenProvider) =
+        GetUserIdUseCase(authTokenProvider)
 
     @Provides
     @Singleton
