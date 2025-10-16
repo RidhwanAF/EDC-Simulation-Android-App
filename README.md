@@ -1,5 +1,3 @@
-# Requires
-
 ## Installation Guide
 
 ### Prerequisites
@@ -27,3 +25,9 @@ Before running the application, you need to configure the following environment 
     SECRET_KEY_STRING="your_secret_key_here"
     ```
 3.  Replace `"your_base_url_here"` and `"your_secret_key_here"` with your actual base URL and secret key.
+
+### Demo
+
+
+https://github.com/user-attachments/assets/f5873c2f-29f1-4b72-8d55-f74b8544ff8b
+
